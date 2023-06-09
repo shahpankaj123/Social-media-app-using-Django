@@ -26,11 +26,14 @@ def signup(request):
             else:
                 user=User.objects.create_user(username=username,email=email,password=password)
                 user.save()
+                
+                user_login=authenticate(username=username,password=password)
+                login(request,user_login)
+                
                 user_model=User.objects.get(username=username)
-                print(user_model.id)
                 new_profile=Profile.objects.create(user=user_model,id_user=user_model.id)
                 new_profile.save()
-                return redirect('Login')       
+                return redirect('setting')       
         else:
             messages.info(request,'Password not matched')
             return redirect('signup')
@@ -54,3 +57,34 @@ def Login(request):
 def Logout(request):
     logout(request)
     return redirect('Login')
+
+@login_required(login_url='Login')
+def setting(request):
+    
+   profile_user=Profile.objects.get(user=request.user)
+   if request.method=="POST":
+       if request.FILES.get('image') ==None:
+            bio=request.POST['bio']
+            location=request.POST['location']
+            profile_img=profile_user.profileimg
+            
+            profile_user.profileimg=profile_img
+            profile_user.bio=bio
+            profile_user.location=location
+            profile_user.save()
+            messages.info(request,"SUCCESFULLY UPDATED PROFILE")
+            return redirect('setting') 
+       if request.FILES.get('image') != None:
+            image=request.FILES.get('image')
+            bio=request.POST['bio']
+            location=request.POST['location']
+            
+            profile_user.profileimg=image
+            profile_user.bio=bio
+            profile_user.location=location
+            profile_user.save()
+            messages.info(request,"SUCCESFULLY UPDATED PROFILE")
+            return redirect('setting')  
+           
+   return render(request,'setting.html',{'profile':profile_user})
+
