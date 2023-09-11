@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 @login_required(login_url='Login')
 def index(request):
-    return render(request,'index.html')
+    profile_user=Profile.objects.get(user=request.user)
+    return render(request,'index.html',{'profile':profile_user})
 
 def signup(request):
     if request.method=='POST':
@@ -88,3 +89,7 @@ def setting(request):
            
    return render(request,'setting.html',{'profile':profile_user})
 
+@login_required(login_url='Login')
+def Profile1(request):
+    return render(request,'profile.html')
+    
